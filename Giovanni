@@ -1,0 +1,578 @@
+#include <stdio.h>
+#include <time.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define ONGKIR 10000
+#define TARIF_KILOAN 6000
+#define ITEM_KAOS 1000
+#define ITEM_KEMEJA 1500
+#define ITEM_CELANAPJG 2000
+#define ITEM_CELANAPNDK 1000
+#define ITEM_JAKET 2000
+#define ITEM_SPREI 1500
+#define ITEM_SARUNG 500
+#define ITEM_BONEKA 3000
+#define ITEM_SELIMUT 5000
+#define BIAYAJEMPUT 10000
+
+float total_biayaBaju = 0;
+float total_biayaLayanan =0;
+float total_biayaAntar = 0;
+float biaya_layanan =0;
+float total_biaya = 0;
+float biaya_dp = 0;
+float persendDp = 0.5;
+float total_biayaKiloan = 0;
+float biaya_jemput = 0;
+int Ctunai=0;
+int Cdp=0;
+//int jumlahMasuk = 0;
+//int jumlahKeluar = 0;
+
+void menu();
+void menuLayanan();
+void menukecepatanLayanan();
+void menuJenisAntar();
+void menuSistemBayar(char nama[], char notelp[], int pilihanKecepatan, struct tm *tanggalKeluar);
+void error();
+void tunai(char nama[], char notelp[], int pilihanKecepatan, struct tm *tanggalKeluar);
+void satuan();
+void kiloan();
+void dp(char nama[], char notelp[], int pilihanKecepatan, struct tm *tanggalKeluar);
+void pemesanan();
+void registrasi(char *nama, char *notelp);
+void cetakNota(char nama[], char notelp[], int pilihanKecepatan, struct tm *tanggalKeluar);
+void cetakDP(char nama[], char notelp[], int pilihanKecepatan, struct tm *tanggalKeluar);
+void cetakTunai(char nama[], char notelp[], int pilihanKecepatan, struct tm *tanggalKeluar);
+//void strukTunai(char nama[], char notelp[]);
+//void strukdp(char nama[], char notelp[]);
+
+
+int validInt(int *var)
+{
+    char buff[1024];
+    char check;
+    if (fgets(buff, sizeof(buff), stdin) != NULL)
+    {
+        if (sscanf(buff, "%d %c", var, &check) == 1)
+        {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+void ReadInt(int *var, char *prompt)
+{
+    while (1)
+    {
+        printf(prompt);
+        if (validInt(var))
+            break;
+        printf("input salah");
+    }
+}
+
+void error(){
+    printf("Maaf input yang anda masukkan salah\n");
+}
+
+void menu(){
+    system("cls");
+    int pilihan;
+    printf("|==========================================|\n");
+    printf("|            PILIH JENIS LAYANAN           |\n");
+    printf("|==========================================|\n");
+    printf("| 1) CUCI AJA                              |\n");
+    printf("| 2) SETRIKA AJA                           |\n");
+    printf("| 3) CUCI + SETRIKA                        |\n");
+    printf("|==========================================|\n\n");
+    ReadInt(&pilihan, "masukkan pilihan anda: ");
+    switch (pilihan)
+    {
+    case 1:
+        total_biayaLayanan += 0;//biaya cuci aja tidak ada tambahan
+        break;
+    case 2:
+        if(kiloan){
+            total_biayaLayanan += 2000;
+       // }else if(satuan){
+         //   total_biayaLayanan += 500;
+        }else{
+            error();
+            menu();
+        }
+        break;
+    case 3:
+        if(kiloan){
+            total_biayaLayanan += 3000;
+        //}else if(satuan){
+           // total_biayaLayanan += 1000;
+        }else{
+            error();
+            menu();
+        }
+        break;
+    default:
+        error();
+        menu();
+        break;
+    }
+}
+
+int main(){
+    char nama[120];
+    char notelp[15];
+    int pilihanKecepatan;
+    struct tm tmKeluar;
+    printf("|======================================================================|\n");
+    printf("|                           PROGRAM LAUNDRY                            |\n");
+    printf("|                             KELOMPOK 3                               |\n");
+    printf("|======================================================================|\n");
+    printf("|                              ANGGOTA                                 |\n");
+    printf("|----------------------------------------------------------------------|\n");
+    printf("| 1) Chalimus Candra Daniswara Wisam P.(2305551109)                    |\n");
+    printf("| 2) Dewa Ketut Cakra Wibawa Diputra(2305551121)                       |\n");
+    printf("| 3) Putu Giovanni Prabawa Putra(2305551118)                           |\n");
+    printf("|======================================================================|\n\n");
+
+    printf("||                   SELAMAT DATANG DI LAUNDRY KAMI                   ||\n\n");
+    printf("                 -------------------------------------                  \n");
+    printf("                 ||                                 ||                  \n");
+    printf("                 ||          ATHENAA LAUNDRY        ||                  \n");
+    printf("                 ||                                 ||                  \n");
+    printf("                 -------------------------------------                  \n\n\n");
+    printf("|======================================================================|\n");
+    printf("|             DISINI KAMI MENYEDIAKAN PAKET SATUAN DAN KILOAN          |\n");
+    printf("|----------------------------------------------------------------------|\n");
+    printf("|                MENGAPA ANDA HARUS MEMILIH LAUNDRY KAMI               |\n");
+    printf("||---------------------------------------------------------------------||\n");
+    printf("| 1) JAMINAN HIGIENIS                                                  |\n");
+    printf("| 2) MENGGUNAKAN DETERGEN PILIHAN                                      |\n");
+    printf("| 3) DIGITALISASI PROSES                                               |\n");
+    printf("| 4) MEMILKI PELAYANAN JEMPUT DAN ANTAR BAJU                           |\n\n\n");
+    printf("|======================================================================|\n");
+    printf("===============Silahkan tekan enter untuk memulai program===============\n");
+    getchar();
+
+    pemesanan();
+    menuLayanan();
+    menu();
+    menukecepatanLayanan(&pilihanKecepatan, &tmKeluar);
+    menuJenisAntar();
+    registrasi(nama, notelp);
+    menuSistemBayar(nama, notelp, pilihanKecepatan, &tmKeluar);
+    cetakNota(nama, notelp, pilihanKecepatan, &tmKeluar);
+
+    //strukTunai(nama, notelp);
+    //strukdp(nama, notelp);
+
+}
+
+void menuLayanan(){
+    system("cls");
+    int pilihan;
+    printf("|=====================================================|\n");
+    printf("|                    PILIH PELAYANAN                  |\n");
+    printf("|=====================================================|\n");
+    printf("| 1) KILOAN                                           |\n");
+    printf("| 2) SATUAN                                           |\n");
+    printf("|=====================================================|\n\n");
+    ReadInt(&pilihan, "masukkan pilihan: ");
+    switch (pilihan)
+    {
+    case 1:
+        kiloan();
+        break;
+    case 2:
+        satuan();
+        break;
+    default:
+        error();
+        menuLayanan();
+        break;
+    }
+}
+
+void menukecepatanLayanan(int *pilihanKecepatan, struct tm *tanggalKeluar){
+    system("cls");
+    int pilihan;
+    printf("|=================================================|\n");
+    printf("|              PILIH KECEPATAN LAYANAN            |\n");
+    printf("|=================================================|\n");
+    printf("| 1) NORMAL (3 hari)                              |\n");
+    printf("| 2) EXPRESS (1 hari)                             |\n");
+    printf("|=================================================|\n\n");
+    ReadInt(&pilihan, "masukkan pilihan: ");
+    switch (pilihan)
+    {
+    case 1:
+        *pilihanKecepatan = 1;
+        biaya_layanan = 0;
+        break;
+    case 2:
+        *pilihanKecepatan = 2;
+        biaya_layanan += 5000;
+        break;
+    default:
+        error();
+        menukecepatanLayanan(pilihanKecepatan, tanggalKeluar);
+        break;
+    }
+
+    int durasi_hari;
+    switch (*pilihanKecepatan)
+    {
+    case 1:
+        durasi_hari = 3;
+        break;
+    case 2:
+        durasi_hari =1;
+        break;
+    default:
+        durasi_hari = 3;
+        break;
+    }
+
+    time_t x;
+    x = time(NULL);
+    *tanggalKeluar = *localtime(&x);
+    tanggalKeluar-> tm_mday += durasi_hari;
+    mktime(tanggalKeluar);
+}
+
+void menuJenisAntar(){
+    system("cls");
+    int pilihan;
+    printf("|=================================================|\n");
+    printf("|            PILIH LAYANAN PENGANTARAN            |\n");
+    printf("|=================================================|\n");
+    printf("| 1) AMBIL SENDIRI                                |\n");
+    printf("| 2) DIANTAR(MAX 10KM)                            |\n");
+    printf("|=================================================|\n\n");
+    ReadInt(&pilihan, "masukkan pilihan: ");
+    
+    if(pilihan==1){
+        total_biayaAntar =0;//gak ditambah biaya
+    }else if(pilihan==2){
+        total_biayaAntar = ONGKIR;
+    }else{
+        error();
+        menuJenisAntar();
+    }
+}
+
+void menuSistemBayar(char nama[], char notelp[], int pilihanKecepatan, struct tm *tanggalKeluar){
+    system("cls");
+    int pilihan;
+    printf("|=================================================|\n");
+    printf("|              PILIH SISTEM PEMBAYARAN            |\n");
+    printf("|=================================================|\n");
+    printf("| 1) TUNAI                                        |\n");
+    printf("| 2) DP                                           |\n");
+    printf("|=================================================|\n\n");
+    ReadInt(&pilihan, "masukkan pilihan: ");
+        switch (pilihan)
+        {
+        case 1:
+            tunai(nama, notelp, pilihanKecepatan, tanggalKeluar);
+            break;
+        case 2:
+            dp(nama, notelp, pilihanKecepatan, tanggalKeluar);
+            break;
+        default:
+            error();
+            menuSistemBayar(nama, notelp, pilihanKecepatan, tanggalKeluar);
+            break;
+        }
+}
+
+void kiloan(){
+    int masukkan;
+    float tarif_kilo;
+    tarif_kilo = TARIF_KILOAN;
+    ReadInt(&masukkan, "masukkan berat baju(kg): ");
+    total_biayaKiloan = tarif_kilo * masukkan;
+}
+
+void satuan() {
+    system("cls");
+    int pilihan, jml_item;
+    int itempakaian=0;
+    float hargaKaos = ITEM_KAOS;
+    float hargaKemeja = ITEM_KEMEJA;
+    float hargaCelanapjg = ITEM_CELANAPJG;
+    float hargaCelanapndk = ITEM_CELANAPNDK;
+    float hargaJaket = ITEM_JAKET;
+    float hargaSprei = ITEM_SPREI;
+    float hargaBoneka = ITEM_BONEKA;
+    float hargaSarung = ITEM_SARUNG;
+    float hargaSelimut = ITEM_SELIMUT;
+    do {
+        if(!itempakaian){
+            printf("|==========================================|\n");
+            printf("|       LIST ITEM PAKAIAN YANG DICUCI      |\n");
+            printf("|------------------------------------------|\n");
+            printf("| 1) Kaos                                  |\n");
+            printf("| 2) Kemeja                                |\n");
+            printf("| 3) Celana Panjang                        |\n");
+            printf("| 4) Celana Pendek                         |\n");
+            printf("| 5) Jaket                                 |\n");
+            printf("|==========================================|\n");
+            printf("|    LIST ITEM NON PAKAIAN YANG DICUCI     |\n");
+            printf("|------------------------------------------|\n");
+            printf("| 6) Sprei                                 |\n");
+            printf("| 7) Sarung Bantal                         |\n");
+            printf("| 8) Boneka                                |\n");
+            printf("| 9) Selimut                               |\n");
+            printf("|==========================================|\n");
+            itempakaian = 1;
+        } 
+        ReadInt(&pilihan, "Masukkan pilihan: ");
+
+        switch (pilihan) {
+            case 1:
+                printf("Masukkan jumlah kaos yang ingin dicuci: ");
+                ReadInt(&jml_item, "");
+                total_biayaBaju += jml_item * hargaKaos;
+                break;
+            case 2:
+                printf("Masukkan jumlah kemeja yang ingin dicuci: ");
+                ReadInt(&jml_item, "");
+                total_biayaBaju += jml_item * hargaKemeja;
+                break;
+            case 3:
+                printf("Masukkan jumlah celana panjang yang ingin dicuci: ");
+                ReadInt(&jml_item, "");
+                total_biayaBaju += jml_item * hargaCelanapjg;
+                break;
+            case 4:
+                printf("Masukkan jumlah celana pendek yang ingin dicuci: ");
+                ReadInt(&jml_item, "");
+                total_biayaBaju += jml_item * hargaCelanapndk;
+                break;
+            case 5:
+                printf("Masukkan jumlah Jaket yang ingin dicuci: ");
+                ReadInt(&jml_item, "");
+                total_biayaBaju += jml_item * hargaJaket;
+                break;
+            case 6:
+                printf("Masukkan jumlah sprei yang ingin dicuci: ");
+                ReadInt(&jml_item, "");
+                total_biayaBaju += jml_item * hargaSprei;
+                break;
+            case 7:
+                printf("Masukkan jumlah sarung bantal yang ingin dicuci: ");
+                ReadInt(&jml_item, "");
+                total_biayaBaju += jml_item * hargaSarung;
+                break;
+            case 8:
+                printf("Masukkan jumlah boneka yang ingin dicuci: ");
+                ReadInt(&jml_item, "");
+                total_biayaBaju += jml_item * hargaBoneka;
+                break;
+            case 9:
+                printf("Masukkan jumlah selimut yang ingin dicuci: ");
+                ReadInt(&jml_item, "");
+                total_biayaBaju += jml_item * hargaSelimut;
+                break;
+            default:
+                error();
+                satuan();
+                break;
+        }
+
+        printf("total harga: %2.f\n", total_biayaBaju);
+        printf("Apakah anda ingin memasukkan item untuk dicuci lagi? (1/0): ");
+        ReadInt(&jml_item, "");
+        //jumlahMasuk += jml_item;
+    }while(jml_item == 1);
+
+}
+
+void tunai(char nama[], char notelp[], int pilihanKecepatan, struct tm *tanggalKeluar){
+    system("cls");
+    time_t x;
+    x = time(NULL);
+    struct tm tm = *localtime(&x);
+    total_biaya = biaya_layanan + total_biayaAntar + total_biayaBaju + total_biayaLayanan + total_biayaKiloan + biaya_jemput;
+    printf("|===========================================|\n");
+    printf("|               PEMBAYARAN TUNAI            |\n");
+    printf("|===========================================|\n");
+    printf("| Nama                   : %s\n", nama);
+    printf("| No Telepon             : %s\n", notelp);
+    printf("| Tanggal Cuci           :%d-%d-%d\n", tm.tm_mday, tm.tm_mon +1,tm.tm_year+1900);
+    printf("| Tanggal Keluar         : %d-%d-%d\n", tanggalKeluar->tm_mday, tanggalKeluar->tm_mon + 1, tanggalKeluar->tm_year + 1900);
+    //printf("| Jumlah Pakaian masuk   : %d\n", *jumlahMasuk);
+    //printf("| Jumlah Pakaian keluar  : %d\n", *jumlahKeluar);
+    printf("| Biaya Layanan          : %2.f\n", total_biayaLayanan);
+    printf("| Biaya Antar            : %2.f\n", total_biayaAntar);
+    printf("| Biaya Satuan           : %2.f\n", total_biayaBaju);
+    printf("| Biaya Kiloan           : %2.f\n", total_biayaKiloan);
+    printf("| Biaya Kecepatan Layanan: %2.f\n", biaya_layanan);
+    printf("| Biaya Pemesanan        : %2.f\n", biaya_jemput);
+    printf("|-------------------------------------------|\n");
+    printf("| Total Biaya            : %2.f\n", total_biaya);
+    printf("|===========================================|\n\n\n");
+    printf("|===========================================|\n");
+    printf("|TERIMAKASIH SUDAH MEMPERCAYAKAN PENCUCUIAN |\n");
+    printf("|         PAKAIAN ANDA KEPADA KAMI          |\n");
+    printf("|===========================================|\n");
+}
+
+void dp(char nama[], char notelp[], int pilihanKecepatan, struct tm *tanggalKeluar){
+    system("cls");
+    time_t x;
+    x = time(NULL);
+    struct tm tm = *localtime(&x);
+    total_biaya = biaya_layanan + total_biayaAntar + total_biayaBaju + total_biayaLayanan + total_biayaKiloan + biaya_jemput;
+    biaya_dp = total_biaya * persendDp;
+    printf("|===========================================|\n");
+    printf("|               PEMBAYARAN DP               |\n");
+    printf("|===========================================|\n");
+    printf("| Nama                   : %s\n", nama);
+    printf("| No Telepon             : %s\n", notelp);
+    printf("| Tanggal Cuci           : %d-%d-%d\n", tm.tm_mday, tm.tm_mon +1,tm.tm_year+1900);
+    printf("| Tanggal Keluar         : %d-%d-%d\n", tanggalKeluar->tm_mday, tanggalKeluar->tm_mon + 1, tanggalKeluar->tm_year + 1900);
+    //printf("| Jumlah Pakaian masuk   : %d\n", *jumlahMasuk);
+    //printf("| Jumlah Pakaian keluar  : %d\n", *jumlahKeluar);
+    printf("| Biaya Layanan          : %2.f\n", total_biayaLayanan);
+    printf("| Biaya Antar            : %2.f\n", total_biayaAntar);
+    printf("| Biaya Satuan           : %2.f\n", total_biayaBaju);
+    printf("| Biaya Kiloan           : %2.f\n", total_biayaKiloan);
+    printf("| Biaya Kecepatan Layanan: %2.f\n", biaya_layanan);
+    printf("| Besar DP               : %0.f\n", biaya_dp);
+    printf("| Biaya Total            : %2.f\n", total_biaya);
+    printf("| Biaya Pemesanan        : %2.f\n", biaya_jemput);
+    printf("|-------------------------------------------|\n");
+    printf("| Sisa Pembayaran        : %2.f\n", total_biaya - biaya_dp);
+    printf("|===========================================|\n");
+}
+
+void pemesanan(){
+    system("cls");
+    int pilihan;
+    printf("|=================================================|\n");
+    printf("|          PILIH JENIS PEMESANAN                  |\n");
+    printf("|=================================================|\n");
+    printf("| 1) Via Telepon                                  |\n");
+    printf("| 2) Datang Sendiri                               |\n");
+    printf("|=================================================|\n\n");
+    ReadInt(&pilihan, "masukkan pilihan: ");
+    if(pilihan==1){
+        biaya_jemput += 10000;
+    }else if(pilihan==2){
+        biaya_jemput=0;
+    }else{
+        error();
+        pemesanan();
+    }
+
+}
+
+void registrasi(char *nama, char *notelp){
+    system("cls");
+    printf("|==============================================|\n");
+    printf("|                 MENU REGISTRASI              |\n");
+    printf("|==============================================|\n\n");
+    printf("Masukkan informasi data diri anda:\n");
+    printf("Nama: ");
+    scanf("%[^\n]", nama);
+    printf("Telepon: ");
+    getchar();
+    scanf("%[^\n]", notelp);
+    getchar();
+}
+
+void cetakNota (char nama[], char notelp[], int pilihanKecepatan, struct tm *tanggalKeluar) {
+    int pilihan, menu;
+    printf("Apakah Anda ingin mencetak nota pembayaran?\n");
+    printf("1. Cetak DP\n");
+    printf("2. Cetak Tunai\n");
+    printf("3. Tidak\n");
+    ReadInt(&pilihan, "Masukkan pilihan anda : ");
+    switch (pilihan) {
+        case 1:
+            Cdp = 1;
+            cetakDP(nama, notelp, pilihanKecepatan, tanggalKeluar);
+            break;
+        case 2:
+            Ctunai = 1;
+            cetakTunai(nama, notelp, pilihanKecepatan, tanggalKeluar);
+            break;
+        case 3:
+        exit(0);
+        default:
+            error();
+            cetakNota(nama, notelp, pilihanKecepatan, tanggalKeluar);
+            break;
+    }
+}
+
+void cetakDP(char nama[], char notelp[], int pilihanKecepatan, struct tm *tanggalKeluar){
+    system("cls");
+    time_t x;
+    x = time(NULL);
+    struct tm tm = *localtime(&x);
+    total_biaya = biaya_layanan + total_biayaAntar + total_biayaBaju + total_biayaLayanan + total_biayaKiloan + biaya_jemput;
+    biaya_dp = total_biaya * persendDp;
+    FILE *Pdp;
+    Pdp = fopen("notabayar.txt", "a");
+    fprintf(Pdp, "|===========================================|\n");
+    fprintf(Pdp, "|               PEMBAYARAN DP               |\n");
+    fprintf(Pdp, "|===========================================|\n");
+    fprintf(Pdp, "| Nama                   : %s\n", nama);
+    fprintf(Pdp, "| No Telepon             : %s\n", notelp);
+    fprintf(Pdp, "| Tanggal Cuci           : %d-%d-%d\n", tm.tm_mday, tm.tm_mon +1,tm.tm_year+1900);
+    fprintf(Pdp, "| Tanggal Keluar         : %d-%d-%d\n", tanggalKeluar->tm_mday, tanggalKeluar->tm_mon + 1, tanggalKeluar->tm_year + 1900);
+    //fprintPdp, f("| Jumlah Pakaian masuk   : %d\n", *jumlahMasuk);
+    //fprintPdp, f("| Jumlah Pakaian keluar  : %d\n", *jumlahKeluar);
+    fprintf(Pdp, "| Biaya Layanan          : %2.f\n", total_biayaLayanan);
+    fprintf(Pdp, "| Biaya Antar            : %2.f\n", total_biayaAntar);
+    fprintf(Pdp, "| Biaya Satuan           : %2.f\n", total_biayaBaju);
+    fprintf(Pdp, "| Biaya Kiloan           : %2.f\n", total_biayaKiloan);
+    fprintf(Pdp, "| Biaya Kecepatan Layanan: %2.f\n", biaya_layanan);
+    fprintf(Pdp, "| Besar DP               : %0.f\n", biaya_dp);
+    fprintf(Pdp, "| Biaya Total            : %2.f\n", total_biaya);
+    fprintf(Pdp, "| Biaya Pemesanan        : %2.f\n", biaya_jemput);
+    fprintf(Pdp, "|-------------------------------------------|\n");
+    fprintf(Pdp, "| Sisa Pembayaran        : %2.f\n", total_biaya - biaya_dp);
+    fprintf(Pdp, "|===========================================|\n");
+
+    fclose(Pdp);
+}
+
+void cetakTunai(char nama[], char notelp[], int pilihanKecepatan, struct tm *tanggalKeluar){
+    system("cls");
+    time_t x;
+    x = time(NULL);
+    struct tm tm = *localtime(&x);
+    total_biaya = biaya_layanan + total_biayaAntar + total_biayaBaju + total_biayaLayanan + total_biayaKiloan + biaya_jemput;
+    FILE *struk_tunai;
+    struk_tunai = fopen("notabayar.txt", "a");
+    fprintf(struk_tunai, "|===========================================|\n");
+    fprintf(struk_tunai, "|               PEMBAYARAN TUNAI            |\n");
+    fprintf(struk_tunai, "|===========================================|\n");
+    fprintf(struk_tunai, "| Nama                   : %s\n", nama);
+    fprintf(struk_tunai, "| No Telepon             : %s\n", notelp);
+    fprintf(struk_tunai, "| Tanggal Cuci           :%d-%d-%d\n", tm.tm_mday, tm.tm_mon +1,tm.tm_year+1900);
+    fprintf(struk_tunai, "| Tanggal Keluar         : %d-%d-%d\n", tanggalKeluar->tm_mday, tanggalKeluar->tm_mon + 1, tanggalKeluar->tm_year + 1900);
+    //printfstruk_tunai, ("| Jumlah Pakaian masuk   : %d\n", *jumlahMasuk);
+    //printfstruk_tunai, ("| Jumlah Pakaian keluar  : %d\n", *jumlahKeluar);
+    fprintf(struk_tunai, "| Biaya Layanan          : %2.f\n", total_biayaLayanan);
+    fprintf(struk_tunai, "| Biaya Antar            : %2.f\n", total_biayaAntar);
+    fprintf(struk_tunai, "| Biaya Satuan           : %2.f\n", total_biayaBaju);
+    fprintf(struk_tunai, "| Biaya Kiloan           : %2.f\n", total_biayaKiloan);
+    fprintf(struk_tunai, "| Biaya Kecepatan Layanan: %2.f\n", biaya_layanan);
+    fprintf(struk_tunai, "| Biaya Pemesanan        : %2.f\n", biaya_jemput);
+    fprintf(struk_tunai, "|-------------------------------------------|\n");
+    fprintf(struk_tunai, "| Total Biaya            : %2.f\n", total_biaya);
+    fprintf(struk_tunai, "|===========================================|\n\n\n");
+    fprintf(struk_tunai, "|===========================================|\n");
+    fprintf(struk_tunai, "|TERIMAKASIH SUDAH MEMPERCAYAKAN PENCUCUIAN |\n");
+    fprintf(struk_tunai, "|         PAKAIAN ANDA KEPADA KAMI          |\n");
+    fprintf(struk_tunai, "|===========================================|\n");
+    
+    fclose(struk_tunai);
+}
